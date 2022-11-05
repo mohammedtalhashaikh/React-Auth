@@ -14,7 +14,7 @@ export const signupRoute = {
       res.sendStatus(409);
     }
 
-    const passwordHash = bcrypt.hash(password, 10);
+    const passwordHash = await bcrypt.hash(password, 10);
 
     const startingInfo = {
       hairColor: "",
