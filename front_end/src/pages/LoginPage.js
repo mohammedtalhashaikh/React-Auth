@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useToken } from "../auth/useToken";
+import axios from "axios";
 
 export const LoginPage = () => {
+  const [token, setToken] = useToken();
   const [errorMessage, setErrorMessage] = useState("");
 
   const [emailValue, setEmailValue] = useState("");
@@ -10,7 +13,14 @@ export const LoginPage = () => {
   const navigate = useNavigate();
 
   const onLoginClick = async () => {
-    alert(`login not implemented yet`);
+    const response = await axios.post("/api/login", {
+      email: emailValue,
+      password: passwordValue,
+    });
+
+    const { token } = response.data;
+    setToken(token);
+    navigate("/");
   };
 
   return (
