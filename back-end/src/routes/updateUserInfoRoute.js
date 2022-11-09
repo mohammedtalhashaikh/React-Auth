@@ -26,12 +26,18 @@ export const updateUserInfoRoute = {
       if (err)
         return res.status(401).json({ messgae: "Unable to verify token" });
 
-      const { id } = decoded;
+      const { id, isVerified } = decoded;
 
       if (id !== userId)
         return res
           .status(403)
           .json({ message: "Not allowed to update that users data" });
+
+      if (!isVerified)
+        return res.status(403).json({
+          message:
+            "you need to verify your email before you can update the data",
+        });
 
       const result = await db.collection("users").findOneAndUpdate(
         {
@@ -41,7 +47,7 @@ export const updateUserInfoRoute = {
         { returnOriginal: false }
       );
 
-      const { email, isVerified, info } = result.value;
+      const { email, info } = result.value;
 
       jwt.sign(
         { id, email, isVerified, info },
