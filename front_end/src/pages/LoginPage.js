@@ -1,16 +1,40 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToken } from "../auth/useToken";
 import axios from "axios";
+import { useQueryParams } from "../util/useQueryParams";
 
 export const LoginPage = () => {
-  const [token, setToken] = useToken();
+  const [, setToken] = useToken();
   const [errorMessage, setErrorMessage] = useState("");
 
   const [emailValue, setEmailValue] = useState("");
   const [passwordValue, setPasswordValue] = useState("");
+  const [googleOautUrl, setGoogleOauthUrl] = useState("");
+
+  const { token: oauthToken } = useQueryParams();
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (oauthToken) {
+      setToken(oauthToken);
+      navigate("/");
+    }
+  }, [oauthToken, setToken, navigate]);
+
+  useEffect(() => {
+    const loadOauthUrl = async () => {
+      try {
+        const response = await axios.get("/auth/google/url");
+        const url = response.data.url;
+        setGoogleOauthUrl(url);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+    loadOauthUrl();
+  }, []);
 
   const onLoginClick = async () => {
     const response = await axios.post("/api/login", {
@@ -48,6 +72,14 @@ export const LoginPage = () => {
       </button>
       <button onClick={() => navigate("/signup")}>
         Don't have an account ? Sign up
+      </button>
+      <button
+        onClick={() => {
+          window.location.href = googleOautUrl;
+        }}
+        disabled={!googleOautUrl}
+      >
+        Log In with Google
       </button>
     </div>
   );
