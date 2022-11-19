@@ -8,12 +8,15 @@ export const resetPasswordRoute = {
     const { passwordResetCode } = req.params;
     const { newPassword } = req.body;
 
-    const newPasswordHash = bcrypt.hash(newPassword, 10);
+    const newSalt = uuid();
+    const pepper = process.env.PEPPER_STRING;
+
+    const newPasswordHash = bcrypt.hash(newSalt + newPassword + pepper, 10);
 
     const result = await db.collection("users").findOneAndUpdate(
       { passwordResetCode },
       {
-        $set: { passwordHash: newPasswordHash },
+        $set: { passwordHash: newPasswordHash, salt: newSalt },
         $unset: { passwordResetCode: "" },
       }
     );

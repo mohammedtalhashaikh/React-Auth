@@ -16,7 +16,9 @@ export const signupRoute = {
       res.sendStatus(409);
     }
 
-    const passwordHash = await bcrypt.hash(password, 10);
+    const salt = uuid();
+    const pepper = process.env.PEPPER_STRING;
+    const passwordHash = await bcrypt.hash(salt + password + pepper, 10);
 
     const verificationString = uuid();
 
@@ -29,6 +31,7 @@ export const signupRoute = {
     const result = await db.collection("users").insertOne({
       email,
       passwordHash,
+      salt,
       info: startingInfo,
       isVerified: false,
       verificationString,
