@@ -37,16 +37,19 @@ export const LoginPage = () => {
   }, []);
 
   const onLoginClick = async () => {
-    const response = await axios.post("/api/login", {
-      email: emailValue,
-      password: passwordValue,
-    });
+    try {
+      const response = await axios.post("/api/login", {
+        email: emailValue,
+        password: passwordValue,
+      });
 
-    const { token } = response.data;
-    setToken(token);
-    navigate("/");
+      const { token } = response.data;
+      setToken(token);
+      navigate("/");
+    } catch (e) {
+      setErrorMessage(e.message);
+    }
   };
-
   return (
     <div className="content-container">
       <h1>Log In</h1>
